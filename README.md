@@ -1,16 +1,6 @@
-# travelplates
+# <img src="./assets/icon/app_icon.png" style='margin-bottom:-10px' width="40px"> travelplates
+An app to keep track of state license plates while on road trips.
 
-A new Flutter project.
+**Note: This has been a practice project for me with using Dart and Flutter. I've asked a lot of questions of Gemini while building it.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
