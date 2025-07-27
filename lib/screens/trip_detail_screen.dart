@@ -29,7 +29,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         widget.trip.collectedPlates.add(newPlateEntry);
         widget.trip.lastEditDate = DateTime.now();
         _hasChanges = true;
-        print('TripDetailScreen: Added plate. _hasChanges = $_hasChanges');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('${newPlateEntry.plateName} already collected for this trip!')),
@@ -45,7 +44,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
       widget.trip.collectedPlates.removeAt(index);
       widget.trip.lastEditDate = DateTime.now();
       _hasChanges = true;
-      print('TripDetailScreen: Removed plate. _hasChanges = $_hasChanges');
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -58,7 +56,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               widget.trip.collectedPlates.insert(index, plateToRemove);
               widget.trip.lastEditDate = DateTime.now();
               _hasChanges = true;
-              print('TripDetailScreen: Undid plate removal. _hasChanges = $_hasChanges');
             });
           },
         ),
@@ -146,7 +143,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
         }
 
         final tripToReturn = _hasChanges ? widget.trip : null;
-        print('TripDetailScreen: PopScope invoked. _hasChanges=$_hasChanges. Returning: ${tripToReturn != null ? 'Trip object' : 'null'}');
         Navigator.of(context).pop(tripToReturn);
       },
       child: Scaffold(
@@ -156,7 +152,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
               final tripToReturn = _hasChanges ? widget.trip : null;
-              print('TripDetailScreen: AppBar back button pressed. _hasChanges=$_hasChanges. Returning: ${tripToReturn != null ? 'Trip object' : 'null'}');
               Navigator.of(context).pop(tripToReturn);
             },
           ),

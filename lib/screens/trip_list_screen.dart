@@ -37,7 +37,6 @@ class _TripListScreenState extends State<TripListScreen> {
       _trips.add(newTrip);
       _trips.sort((a, b) => (b.lastEditDate ?? b.creationDate).compareTo(a.lastEditDate ?? a.creationDate)); // Re-sort
     });
-    print('TripListScreen: Adding new trip "${newTrip.name}". Calling _saveTrips.');
     _saveTrips();
   }
 
@@ -61,7 +60,6 @@ class _TripListScreenState extends State<TripListScreen> {
                   _trips.removeWhere((t) => t.id == trip.id);
                   // No need to sort here, loadTrips will re-sort
                 });
-                print('TripListScreen: Deleting trip "${trip.name}". Calling _saveTrips.');
                 await _saveTrips();
                 await _loadTrips();
                 Navigator.of(context).pop();
@@ -83,28 +81,17 @@ class _TripListScreenState extends State<TripListScreen> {
         builder: (context) => TripDetailScreen(trip: trip),
       ),
     );
-
-    print('TripListScreen: _navigateToTripDetail received result. updatedTrip is null: ${updatedTrip == null}');
-
     if (updatedTrip != null) {
-      print('TripListScreen: Received updatedTrip for ID: ${updatedTrip.id} with ${updatedTrip.collectedPlates.length} plates.');
       final int index = _trips.indexWhere((t) => t.id == updatedTrip.id);
       if (index != -1) {
         setState(() {
           _trips[index] = updatedTrip; // Replace the old trip with the updated one
           _trips.sort((a, b) => (b.lastEditDate ?? b.creationDate).compareTo(a.lastEditDate ?? a.creationDate)); // Re-sort after update
         });
-        print('TripListScreen: About to save trips (after edit to trip ID: ${updatedTrip.id})...');
         await _saveTrips();
-        print('TripListScreen: Trips saved. About to reload...');
         await _loadTrips();
-        print('TripListScreen: Trips reloaded.');
-      } else {
-        print('TripListScreen: Error: updatedTrip ID not found in _trips list! This should not happen.');
-      }
-    } else {
-      print('TripListScreen: TripDetailScreen popped with no changes or null trip.');
-    }
+      } 
+    } 
   }
 
   String _formatTimeAgo(DateTime date) {

@@ -56,10 +56,8 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
 
     try {
       Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      print('LicensePlateListScreen: Captured Location: ${position.latitude}, ${position.longitude}');
       return position;
     } catch (e) {
-      print('LicensePlateListScreen: Error getting location: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to get location: ${e.toString()}')),
       );
