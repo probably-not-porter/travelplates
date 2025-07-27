@@ -1,9 +1,8 @@
-// lib/models/plate_entry.dart
 class PlateEntry {
   final String plateName;
   final double latitude;
   final double longitude;
-  final DateTime timestamp; // Optional: To record when it was captured
+  final DateTime timestamp;
 
   PlateEntry({
     required this.plateName,
@@ -12,7 +11,6 @@ class PlateEntry {
     DateTime? timestamp, // Make timestamp optional in constructor
   }) : timestamp = timestamp ?? DateTime.now(); // Default to now if not provided
 
-  // Convert a PlateEntry object to a Map (JSON format)
   Map<String, dynamic> toJson() {
     return {
       'plateName': plateName,
@@ -22,7 +20,7 @@ class PlateEntry {
     };
   }
 
-  // Create a PlateEntry object from a Map (JSON format)
+  // Create a PlateEntry object from a Map
   factory PlateEntry.fromJson(Map<String, dynamic> json) {
     return PlateEntry(
       plateName: json['plateName'] as String,

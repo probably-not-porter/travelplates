@@ -1,11 +1,12 @@
-// lib/models/license_plate_models.dart
-import 'dart:convert'; // Required for jsonEncode/jsonDecode
+import 'dart:convert';
 
+// Class for a single License plate 
+// location not required because it might fail sometimes
 class LicensePlate {
   final String plateNumber;
-  final String imageUrl; // URL or local asset path
+  final String imageUrl;
   final DateTime dateSeen;
-  final String? locationSeen; // Optional field
+  final String? locationSeen;
 
   LicensePlate({
     required this.plateNumber,
@@ -31,8 +32,6 @@ class LicensePlate {
       locationSeen: map['locationSeen'],
     );
   }
-
-  // Helper methods for list serialization (if storing list as JSON string in DB)
   static String listToJson(List<LicensePlate> plates) {
     return jsonEncode(plates.map((p) => p.toMap()).toList());
   }
@@ -52,7 +51,7 @@ class LicensePlate {
 class StateData {
   final String name;
   final String abbreviation;
-  List<LicensePlate> seenPlates; // List of plates seen for this state
+  List<LicensePlate> seenPlates;
 
   StateData({
     required this.name,
@@ -68,7 +67,7 @@ class StateData {
     return {
       'name': name,
       'abbreviation': abbreviation,
-      'seenPlates': LicensePlate.listToJson(seenPlates), // Use helper for nested list
+      'seenPlates': LicensePlate.listToJson(seenPlates),
     };
   }
 
@@ -76,7 +75,7 @@ class StateData {
     return StateData(
       name: map['name'],
       abbreviation: map['abbreviation'],
-      seenPlates: LicensePlate.jsonToList(map['seenPlates'] as String), // Use helper for nested list
+      seenPlates: LicensePlate.jsonToList(map['seenPlates'] as String),
     );
   }
 

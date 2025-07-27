@@ -1,4 +1,3 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:travelplates/screens/trip_list_screen.dart';
 
@@ -19,12 +18,11 @@ class PlateTrackerApp extends StatelessWidget {
           seedColor: Colors.blue,
           brightness: Brightness.light,
         ),
-        appBarTheme: AppBarTheme( // <--- REMOVED 'const' HERE
+        appBarTheme: AppBarTheme(
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
         ),
         textTheme: const TextTheme(
-          // Material 3 defaults are quite good, so you might not need extensive customization here.
         ),
       ),
       darkTheme: ThemeData(
@@ -33,8 +31,8 @@ class PlateTrackerApp extends StatelessWidget {
           seedColor: Colors.blue,
           brightness: Brightness.dark,
         ),
-        appBarTheme: AppBarTheme( // <--- REMOVED 'const' HERE
-          backgroundColor: Colors.blueGrey[900], // Dark mode AppBar background
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blueGrey[900],
           foregroundColor: Colors.white,
         ),
       ),

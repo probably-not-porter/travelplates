@@ -1,8 +1,4 @@
-// lib/utils/state_centroids.dart
-
-/// A map containing approximate geographic centroids (latitude, longitude) for US states.
-/// Data compiled from various public geographic sources.
-const Map<String, Map<String, double>> usStateCentroids = {
+final Map<String, Map<String, double>> usStateCentroids = {
   'Alabama': {'lat': 32.806671, 'lon': -86.791130},
   'Alaska': {'lat': 61.357267, 'lon': -152.404419},
   'Arizona': {'lat': 33.729759, 'lon': -111.431221},

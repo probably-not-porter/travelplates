@@ -1,6 +1,5 @@
-// lib/screens/add_trip_screen.dart
 import 'package:flutter/material.dart';
-import 'package:travelplates/models/trip.dart'; // Import your Trip model
+import 'package:travelplates/models/trip.dart';
 
 class AddTripScreen extends StatefulWidget {
   const AddTripScreen({super.key});
@@ -22,10 +21,10 @@ class _AddTripScreenState extends State<AddTripScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton( // <--- Changed to IconButton
-          icon: const Icon(Icons.arrow_back), // <--- Use Material back arrow icon
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.of(context).pop(); // Dismiss without saving
+            Navigator.of(context).pop();
           },
         ),
         title: const Text('New Trip'),
@@ -34,7 +33,7 @@ class _AddTripScreenState extends State<AddTripScreen> {
             onPressed: () {
               if (_tripNameController.text.isNotEmpty) {
                 final newTrip = Trip(name: _tripNameController.text);
-                Navigator.of(context).pop(newTrip); // Pop with the new trip
+                Navigator.of(context).pop(newTrip);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(

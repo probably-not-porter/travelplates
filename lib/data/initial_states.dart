@@ -1,7 +1,3 @@
-// lib/data/initial_states.dart
-
-import '../models/license_plate_models.dart'; // Import your models
-
 final List<String> usStateNames = [
   'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado',
   'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho',
@@ -13,13 +9,3 @@ final List<String> usStateNames = [
   'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia',
   'Washington', 'West Virginia', 'Wisconsin', 'Wyoming', 'Other'
 ];
-
-// Optional: A function to create initial StateData objects if you need them pre-populated
-List<StateData> createInitialStateData() {
-  return usStateNames.map((name) {
-    String abbreviation = name.substring(0,2).toUpperCase(); // Simple placeholder
-    if (name == 'New York') abbreviation = 'NY'; // Example specific abbreviation
-    // You'd have a more robust way to get real abbreviations
-    return StateData(name: name, abbreviation: abbreviation);
-  }).toList();
-}

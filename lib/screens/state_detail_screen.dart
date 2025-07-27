@@ -1,5 +1,4 @@
-// lib/screens/state_detail_screen.dart
-import 'package:flutter/cupertino.dart'; // Make sure this import is here
+import 'package:flutter/cupertino.dart';
 
 class StateDetailScreen extends StatelessWidget {
   final String stateName;
@@ -8,15 +7,13 @@ class StateDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // This is the absolute minimum you need for a navigation screen.
-    // It should *never* freeze unless there's a fundamental Flutter or device issue.
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(stateName),
-        previousPageTitle: 'Back', // Simple back title
+        previousPageTitle: 'Back',
       ),
-      child: Center( // Center content
-        child: Text('You are on the $stateName detail screen.'), // Simple text
+      child: Center(
+        child: Text('You are on the $stateName detail screen.'),
       ),
     );
   }

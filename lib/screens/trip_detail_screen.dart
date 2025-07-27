@@ -1,17 +1,13 @@
-// lib/screens/trip_detail_screen.dart
 import 'package:flutter/material.dart';
 import 'package:travelplates/models/trip.dart';
 import 'package:travelplates/models/plate_entry.dart';
 import 'package:travelplates/screens/license_plate_list_screen.dart';
-import 'package:travelplates/services/trip_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:travelplates/data/state_centroids.dart'; // Ensure this import is correct
+import 'package:travelplates/data/state_centroids.dart';
 
-// <--- NEW: Flutter Map Imports ---
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart'; // For LatLng
-// <--- END NEW IMPORTS ---
+import 'package:latlong2/latlong.dart';
 
 
 class TripDetailScreen extends StatefulWidget {
@@ -25,10 +21,7 @@ class TripDetailScreen extends StatefulWidget {
 
 class _TripDetailScreenState extends State<TripDetailScreen> {
   bool _hasChanges = false;
-  // <--- NEW: Map Controller for potential future use (optional) ---
   final MapController _mapController = MapController();
-  // <--- END NEW ---
-
 
   void _addPlateToTrip(PlateEntry newPlateEntry) {
     setState(() {
@@ -102,14 +95,13 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     }
   }
 
-  // --- NEW: Helper to get map markers from collected plates ---
   List<Marker> _getMapMarkers() {
-    return widget.trip.collectedPlates.map<Marker>((plateEntry) { // <--- MODIFIED this line
+    return widget.trip.collectedPlates.map<Marker>((plateEntry) {
       return Marker(
         point: LatLng(plateEntry.latitude, plateEntry.longitude),
         width: 80.0,
         height: 80.0,
-        child: Column( // <--- MODIFIED this line (from builder to child)
+        child: Column(
           children: [
             Icon(Icons.location_on, color: Colors.red[700], size: 30),
             Text(
@@ -122,14 +114,11 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     }).toList();
   }
 
-  // --- NEW: Helper to get initial map center and zoom ---
   LatLng _getInitialMapCenter() {
     if (widget.trip.collectedPlates.isEmpty) {
-      // Default to approximate center of US if no plates
-      return const LatLng(39.8283, -98.5795); // Geographic center of the contiguous US
+      return const LatLng(39.8283, -98.5795);
     }
 
-    // Calculate average of all collected plate locations
     double latSum = 0;
     double lonSum = 0;
     for (var plate in widget.trip.collectedPlates) {
@@ -141,13 +130,11 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
   double _getInitialMapZoom() {
     if (widget.trip.collectedPlates.length <= 1) {
-      return 5.0; // Zoom in for a single or no plate
+      return 5.0;
     }
-    // You might want more sophisticated logic here to calculate zoom based on spread
-    // For now, a slightly zoomed out view for multiple plates
+
     return 4.0;
   }
-  // --- END NEW HELPERS ---
 
   @override
   Widget build(BuildContext context) {
@@ -193,22 +180,20 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ],
         ),
         body: SafeArea(
-          child: Column( // Main Column to hold collapsible list and map
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // <--- MODIFIED: Collapsible Plate List with ExpansionTile ---
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0.0), // Adjust padding
-                child: Card( // Wrap in Card for better visual separation
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0.0),
+                child: Card(
                   margin: const EdgeInsets.all(0),
                   child: ExpansionTile(
-                    initiallyExpanded: true, // Start expanded
+                    initiallyExpanded: true,
                     title: Text(
                       'Collected Plates (${widget.trip.collectedPlates.length})',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     children: [
-                      // Only show the ListView.builder if there are plates, otherwise a message
                       if (widget.trip.collectedPlates.isEmpty)
                         Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -219,8 +204,8 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         )
                       else
                         ListView.builder(
-                          shrinkWrap: true, // <--- IMPORTANT for ListView inside ExpansionTile
-                          physics: const NeverScrollableScrollPhysics(), // <--- IMPORTANT to prevent inner scrolling
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: widget.trip.collectedPlates.length,
                           itemBuilder: (context, index) {
                             final plateEntry = widget.trip.collectedPlates[index];
@@ -228,7 +213,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                             final String distanceString = _getDistanceToCentroid(plateEntry);
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0), // Adjusted padding
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
                               child: Dismissible(
                                 key: ValueKey(plateEntry.plateName),
                                 direction: DismissDirection.endToStart,
@@ -275,34 +260,29 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                   ),
                 ),
               ),
-              // <--- NEW: Map Window ---
               Padding(
                 padding: const EdgeInsets.all(8.0),
               ),
-              Expanded( // Use Expanded to give the map remaining space
+              Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Card(
                     elevation: 2.0,
-                    clipBehavior: Clip.antiAlias, // For rounded corners
+                    clipBehavior: Clip.antiAlias,
                     child: FlutterMap(
-                      mapController: _mapController, // Assign controller
+                      mapController: _mapController,
                       options: MapOptions(
                         initialCenter: _getInitialMapCenter(), // Center map based on plates or default
                         initialZoom: _getInitialMapZoom(),     // Initial zoom
                         minZoom: 2.0, // Allow zooming out to world view
                         maxZoom: 18.0, // Allow zooming in
                         keepAlive: true, // Keep map state alive if parent widget rebuilds
-                        // Optional: Disable interaction if it's just for display
-                        // interactionOptions: const InteractionOptions(
-                        //   flags: ~InteractiveFlag.all, // Disable all interaction
-                        // ),
                       ),
                       children: [
                         TileLayer(
                           // OpenStreetMap tiles
                           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.example.travelplates', // Replace with your package name
+                          userAgentPackageName: 'com.example.travelplates',
                         ),
                         MarkerLayer(
                           markers: _getMapMarkers(), // Add markers for collected plates

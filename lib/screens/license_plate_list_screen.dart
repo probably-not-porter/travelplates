@@ -1,4 +1,3 @@
-// lib/screens/license_plate_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:travelplates/models/plate_entry.dart';
@@ -23,7 +22,7 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
     'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
   ];
 
-  bool _isLoading = false; // <--- NEW: State variable to control loading spinner
+  bool _isLoading = false;
 
   Future<Position?> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -74,7 +73,7 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
       appBar: AppBar(
         title: const Text('Select a State Plate'),
       ),
-      body: Stack( // <--- NEW: Wrap body in a Stack to allow overlaying widgets
+      body: Stack(
         children: [
           ListView.builder(
             itemCount: _usStates.length,
@@ -87,12 +86,12 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
                   trailing: widget.isSelectionMode
                       ? const Icon(Icons.add_location_alt)
                       : null,
-                  onTap: _isLoading // <--- MODIFIED: Disable onTap if loading
+                  onTap: _isLoading
                       ? null // Setting onTap to null disables the tile
                       : () async {
                           if (widget.isSelectionMode) {
                             setState(() {
-                              _isLoading = true; // <--- NEW: Show spinner when tap begins
+                              _isLoading = true;
                             });
 
                             Position? currentPosition = await _getCurrentLocation();
@@ -104,18 +103,14 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
                                 longitude: currentPosition.longitude,
                                 timestamp: DateTime.now(),
                               );
-                              print('Plate Selected & Ready to Pop: ${plateEntry.plateName} at Lat: ${plateEntry.latitude}, Lon: ${plateEntry.longitude}');
-                              // We don't set _isLoading to false here because Navigator.pop
-                              // will unmount this widget, so setState will be cancelled.
                               Navigator.of(context).pop(plateEntry);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('Location not captured. Plate not added.')),
                               );
                               setState(() {
-                                _isLoading = false; // <--- NEW: Hide spinner if location fails and we don't pop
+                                _isLoading = false;
                               });
-                              // If location cannot be obtained, we pop null, indicating no plate added
                               Navigator.of(context).pop(null);
                             }
                           }
@@ -124,12 +119,11 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
               );
             },
           ),
-          if (_isLoading) // <--- NEW: Conditional spinner overlay
+          if (_isLoading)
             Container(
-              // This container acts as a semi-transparent overlay
               color: Colors.black.withOpacity(0.5),
               child: const Center(
-                child: CircularProgressIndicator(), // The actual spinner
+                child: CircularProgressIndicator(),
               ),
             ),
         ],

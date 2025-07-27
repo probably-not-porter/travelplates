@@ -1,10 +1,8 @@
-// lib/screens/trip_list_screen.dart
 import 'package:flutter/material.dart';
 import 'package:travelplates/models/trip.dart';
 import 'package:travelplates/screens/add_trip_screen.dart';
 import 'package:travelplates/screens/trip_detail_screen.dart';
 import 'package:travelplates/services/trip_storage.dart';
-import 'package:intl/intl.dart'; // Keep this import, it might be useful for very old dates, or future features.
 
 class TripListScreen extends StatefulWidget {
   const TripListScreen({super.key});
@@ -109,7 +107,6 @@ class _TripListScreenState extends State<TripListScreen> {
     }
   }
 
-  // --- NEW HELPER FUNCTION FOR TIME AGO ---
   String _formatTimeAgo(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
@@ -133,11 +130,8 @@ class _TripListScreenState extends State<TripListScreen> {
     } else { // Years
       final years = (difference.inDays / 365).floor(); // Use floor
       return '$years year${years == 1 ? '' : 's'} ago';
-      // For very old dates, you might consider falling back to a full date format:
-      // return DateFormat('MMM d, yyyy').format(date);
     }
   }
-  // --- END NEW HELPER FUNCTION ---
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +166,6 @@ class _TripListScreenState extends State<TripListScreen> {
               itemCount: _trips.length,
               itemBuilder: (context, index) {
                 final trip = _trips[index];
-                // Use the new helper function to format the time
                 final String formattedTimeAgo = _formatTimeAgo(trip.lastEditDate ?? trip.creationDate);
 
                 return Padding(
@@ -206,7 +199,7 @@ class _TripListScreenState extends State<TripListScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'Edited $formattedTimeAgo', // <--- Use the new formatted string
+                                  'Edited $formattedTimeAgo',
                                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                                   ),

@@ -1,4 +1,3 @@
-// lib/services/trip_storage.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
@@ -45,10 +44,7 @@ class TripStorage {
       }
       return loadedTrips;
     } catch (e) {
-      // <--- NEW / MODIFIED CATCH BLOCK ---
       print('TripStorage: !!! ERROR loading trips: $e');
-      // If an error occurs during loading, assume the file is corrupted
-      // and attempt to delete it to prevent future errors.
       try {
         final file = await _localFile;
         if (await file.exists()) {
@@ -58,8 +54,7 @@ class TripStorage {
       } catch (deleteError) {
         print('TripStorage: Error deleting corrupted file: $deleteError');
       }
-      // ------------------------------------
-      return []; // Return empty list to allow the app to start fresh
+      return [];
     }
   }
 
