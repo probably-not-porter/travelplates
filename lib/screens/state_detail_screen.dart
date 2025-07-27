@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class StateDetailScreen extends StatelessWidget {
   final String stateName;
@@ -7,12 +7,11 @@ class StateDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text(stateName),
-        previousPageTitle: 'Back',
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(stateName),
       ),
-      child: Center(
+      body: Center(
         child: Text('You are on the $stateName detail screen.'),
       ),
     );
