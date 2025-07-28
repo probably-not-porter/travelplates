@@ -30,4 +30,4 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon" # Or true for default name
   ios: true                # Or true for default name
-  image_path: "assets/icon/app_icon3.png" # Path to your icon image
+  image_path: "assets/icon/app_icon2.png" # Path to your icon image

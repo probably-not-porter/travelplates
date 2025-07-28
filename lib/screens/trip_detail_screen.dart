@@ -175,120 +175,125 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
           ],
         ),
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0.0),
-                child: Card(
-                  margin: const EdgeInsets.all(0),
-                  child: ExpansionTile(
-                    initiallyExpanded: true,
-                    title: Text(
-                      'Collected Plates (${widget.trip.collectedPlates.length})',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    children: [
-                      if (widget.trip.collectedPlates.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Text(
-                            'No plates collected for this trip yet.',
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                          ),
-                        )
-                      else
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: widget.trip.collectedPlates.length,
-                          itemBuilder: (context, index) {
-                            final plateEntry = widget.trip.collectedPlates[index];
-                            final String formattedTimestamp = DateFormat('MMM d, HH:mm').format(plateEntry.timestamp);
-                            final String distanceString = _getDistanceToCentroid(plateEntry);
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                              // List of plates
-                              child: Dismissible(
-                                key: ValueKey(plateEntry.plateName),
-                                direction: DismissDirection.endToStart,
-                                background: Container(
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                  color: Colors.red,
-                                  child: const Icon(Icons.delete, color: Colors.white),
-                                ),
-                                onDismissed: (direction) {
-                                  _onPlateDismissed(index, direction);
-                                },
-                                child: Card(
-                                  margin: EdgeInsets.zero,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  elevation: 1.0,
-                                  child: ListTile(
-                                    title: Text(
-                                      plateEntry.plateName,
-                                      style: Theme.of(context).textTheme.bodyLarge,
-                                    ),
-                                    subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          distanceString,
-                                          style: Theme.of(context).textTheme.bodySmall,
-                                        ),
-                                        Text(
-                                          'Spotted: $formattedTimestamp',
-                                          style: Theme.of(context).textTheme.bodySmall,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 0.0),
                   child: Card(
-                    elevation: 2.0,
-                    clipBehavior: Clip.antiAlias,
-                    child: FlutterMap(
-                      mapController: _mapController,
-                      options: MapOptions(
-                        initialCenter: _getInitialMapCenter(), // Center map based on plates or default
-                        initialZoom: _getInitialMapZoom(),     // Initial zoom
-                        minZoom: 2.0, // Allow zooming out to world view
-                        maxZoom: 18.0, // Allow zooming in
-                        keepAlive: true, // Keep map state alive if parent widget rebuilds
+                    margin: const EdgeInsets.all(0),
+                    child: ExpansionTile(
+                      initiallyExpanded: true,
+                      title: Text(
+                        'Collected Plates (${widget.trip.collectedPlates.length})',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       children: [
-                        TileLayer(
-                          // OpenStreetMap tiles
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName: 'com.example.travelplates',
-                        ),
-                        MarkerLayer(
-                          markers: _getMapMarkers(), // Add markers for collected plates
-                        ),
+                        if (widget.trip.collectedPlates.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'No plates collected for this trip yet.',
+                              style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                            ),
+                          )
+                        else
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const ClampingScrollPhysics(), // Allows internal scrolling
+                            itemCount: widget.trip.collectedPlates.length,
+                            itemBuilder: (context, index) {
+                              final plateEntry = widget.trip.collectedPlates[index];
+                              final String formattedTimestamp = DateFormat('MMM d, HH:mm').format(plateEntry.timestamp);
+                              final String distanceString = _getDistanceToCentroid(plateEntry);
+
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                                child: Dismissible(
+                                  key: ValueKey(plateEntry.plateName),
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                    color: Colors.red,
+                                    child: const Icon(Icons.delete, color: Colors.white),
+                                  ),
+                                  onDismissed: (direction) {
+                                    _onPlateDismissed(index, direction);
+                                  },
+                                  child: Card(
+                                    margin: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                    elevation: 1.0,
+                                    child: ListTile(
+                                      title: Text(
+                                        plateEntry.plateName,
+                                        style: Theme.of(context).textTheme.bodyLarge,
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            distanceString,
+                                            style: Theme.of(context).textTheme.bodySmall,
+                                          ),
+                                          Text(
+                                            'Spotted: $formattedTimestamp',
+                                            style: Theme.of(context).textTheme.bodySmall,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                       ],
                     ),
                   ),
                 ),
-              ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    'Plate Locations on Map',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                SizedBox(
+                  height: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Card(
+                      elevation: 2.0,
+                      clipBehavior: Clip.antiAlias,
+                      child: FlutterMap(
+                        mapController: _mapController,
+                        options: MapOptions(
+                          initialCenter: _getInitialMapCenter(),
+                          initialZoom: _getInitialMapZoom(),
+                          minZoom: 2.0,
+                          maxZoom: 18.0,
+                          keepAlive: true,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.example.travelplates',
+                          ),
+                          MarkerLayer(
+                            markers: _getMapMarkers(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
