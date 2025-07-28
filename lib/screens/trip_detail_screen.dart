@@ -209,6 +209,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                              // List of plates
                               child: Dismissible(
                                 key: ValueKey(plateEntry.plateName),
                                 direction: DismissDirection.endToStart,
