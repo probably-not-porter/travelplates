@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:travelplates/models/trip.dart';
-import 'package:travelplates/models/plate_entry.dart';
-import 'package:travelplates/screens/license_plate_list_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:travelplates/data/state_centroids.dart';
-
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
+import 'package:travelplates/models/trip.dart';
+import 'package:travelplates/models/plate_entry.dart';
+import 'package:travelplates/screens/license_plate_list_screen.dart';
+import 'package:travelplates/screens/full_screen_map_screen.dart';
+import 'package:travelplates/data/state_centroids.dart';
 
 class TripDetailScreen extends StatefulWidget {
   final Trip trip;
@@ -22,6 +22,7 @@ class TripDetailScreen extends StatefulWidget {
 class _TripDetailScreenState extends State<TripDetailScreen> {
   bool _hasChanges = false;
   final MapController _mapController = MapController();
+  bool _isCenteringMap = false;
 
   void _addPlateToTrip(PlateEntry newPlateEntry) {
     setState(() {
@@ -84,11 +85,11 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     final double distanceInMiles = distanceInMeters * 0.000621371;
 
     if (distanceInMiles < 0.5) {
-      return 'Very close to center';
+      return 'Very close to home';
     } else if (distanceInMiles < 100) {
-      return '${distanceInMiles.toStringAsFixed(1)} miles from center';
+      return '${distanceInMiles.toStringAsFixed(1)} miles from home';
     } else {
-      return '${distanceInMiles.round()} miles from center';
+      return '${distanceInMiles.round()} miles from home';
     }
   }
 
@@ -133,6 +134,62 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
     return 4.0;
   }
 
+  Future<void> _centerMapOnCurrentLocation() async {
+    setState(() {
+      _isCenteringMap = true;
+    });
+
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location services are disabled. Please enable them to center map.')),
+        );
+        return;
+      }
+
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied. Cannot center map.')),
+          );
+          return;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Location permissions are permanently denied. Please enable them in app settings to center map.')),
+        );
+        return;
+      }
+
+      Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+      _mapController.move(
+        LatLng(position.latitude, position.longitude),
+        _mapController.zoom > 12.0 ? _mapController.zoom : 12.0,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Map centered on your current location.')),
+      );
+    } catch (e) {
+      print('Error centering map: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to center map: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isCenteringMap = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -160,8 +217,9 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
               onPressed: () async {
                 final PlateEntry? selectedPlateEntry = await Navigator.of(context).push(
                   MaterialPageRoute<PlateEntry>(
-                    builder: (context) => const LicensePlateListScreen(
+                    builder: (context) => LicensePlateListScreen(
                       isSelectionMode: true,
+                      currentTripPlates: widget.trip.collectedPlates,
                     ),
                   ),
                 );
@@ -201,7 +259,7 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                         else
                           ListView.builder(
                             shrinkWrap: true,
-                            physics: const ClampingScrollPhysics(), // Allows internal scrolling
+                            physics: const ClampingScrollPhysics(),
                             itemCount: widget.trip.collectedPlates.length,
                             itemBuilder: (context, index) {
                               final plateEntry = widget.trip.collectedPlates[index];
@@ -256,13 +314,6 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    'Plate Locations on Map',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
                 SizedBox(
                   height: 300,
                   child: Padding(
@@ -270,22 +321,63 @@ class _TripDetailScreenState extends State<TripDetailScreen> {
                     child: Card(
                       elevation: 2.0,
                       clipBehavior: Clip.antiAlias,
-                      child: FlutterMap(
-                        mapController: _mapController,
-                        options: MapOptions(
-                          initialCenter: _getInitialMapCenter(),
-                          initialZoom: _getInitialMapZoom(),
-                          minZoom: 2.0,
-                          maxZoom: 18.0,
-                          keepAlive: true,
-                        ),
+                      child: Stack(
                         children: [
-                          TileLayer(
-                            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            userAgentPackageName: 'com.example.travelplates',
+                          FlutterMap(
+                            mapController: _mapController,
+                            options: MapOptions(
+                              initialCenter: _getInitialMapCenter(),
+                              initialZoom: _getInitialMapZoom(),
+                              minZoom: 2.0,
+                              maxZoom: 18.0,
+                              keepAlive: true,
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.example.travelplates',
+                              ),
+                              MarkerLayer(
+                                markers: _getMapMarkers(),
+                              ),
+                            ],
                           ),
-                          MarkerLayer(
-                            markers: _getMapMarkers(),
+                          Positioned(
+                            bottom: 10,
+                            right: 10,
+                            child: Column(
+                              children: [
+                                FloatingActionButton(
+                                  heroTag: 'centerMapBtn',
+                                  mini: true,
+                                  onPressed: _isCenteringMap ? null : _centerMapOnCurrentLocation,
+                                  child: _isCenteringMap
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        )
+                                      : const Icon(Icons.my_location),
+                                ),
+                                const SizedBox(height: 8),
+                                FloatingActionButton(
+                                  heroTag: 'fullscreenMapBtn',
+                                  mini: true,
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => FullScreenMapScreen(
+                                          initialCenter: _mapController.center, // Pass current center
+                                          initialZoom: _mapController.zoom,     // Pass current zoom
+                                          collectedPlates: widget.trip.collectedPlates, // Pass all plates
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Icon(Icons.fullscreen),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

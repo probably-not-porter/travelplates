@@ -4,8 +4,13 @@ import 'package:travelplates/models/plate_entry.dart';
 
 class LicensePlateListScreen extends StatefulWidget {
   final bool isSelectionMode;
+  final List<PlateEntry> currentTripPlates;
 
-  const LicensePlateListScreen({super.key, this.isSelectionMode = false});
+  const LicensePlateListScreen({
+    super.key,
+    this.isSelectionMode = false,
+    this.currentTripPlates = const [], // Default to an empty list
+  });
 
   @override
   State<LicensePlateListScreen> createState() => _LicensePlateListScreenState();
@@ -22,7 +27,25 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
     'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
   ];
 
+  List<String> _displayStates = [];
+
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _filterStates(); // Call filter states when the widget is initialized
+  }
+
+  void _filterStates() {
+    if (widget.isSelectionMode && widget.currentTripPlates.isNotEmpty) {
+      final Set<String> collectedPlateNames = widget.currentTripPlates.map((entry) => entry.plateName).toSet();
+      _displayStates = _usStates.where((state) => !collectedPlateNames.contains(state)).toList();
+    } else {
+      _displayStates = List.from(_usStates);
+    }
+  }
+
 
   Future<Position?> _getCurrentLocation() async {
     bool serviceEnabled;
@@ -73,50 +96,59 @@ class _LicensePlateListScreenState extends State<LicensePlateListScreen> {
       ),
       body: Stack(
         children: [
-          ListView.builder(
-            itemCount: _usStates.length,
-            itemBuilder: (context, index) {
-              final stateName = _usStates[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                child: ListTile(
-                  title: Text(stateName),
-                  trailing: widget.isSelectionMode
-                      ? const Icon(Icons.add_location_alt)
-                      : null,
-                  onTap: _isLoading
-                      ? null // Setting onTap to null disables the tile
-                      : () async {
-                          if (widget.isSelectionMode) {
-                            setState(() {
-                              _isLoading = true;
-                            });
+          _displayStates.isEmpty && widget.isSelectionMode
+              ? const Center(
+                  child: Text(
+                    'All states collected for this trip!\nNo new states to add.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _displayStates.length, // Use the filtered list
+                  itemBuilder: (context, index) {
+                    final stateName = _displayStates[index]; // Use the filtered list
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                      child: ListTile(
+                        title: Text(stateName),
+                        trailing: widget.isSelectionMode
+                            ? const Icon(Icons.add_location_alt)
+                            : null,
+                        onTap: _isLoading
+                            ? null // Setting onTap to null disables the tile
+                            : () async {
+                                if (widget.isSelectionMode) {
+                                  setState(() {
+                                    _isLoading = true;
+                                  });
 
-                            Position? currentPosition = await _getCurrentLocation();
+                                  Position? currentPosition = await _getCurrentLocation();
 
-                            if (currentPosition != null) {
-                              final plateEntry = PlateEntry(
-                                plateName: stateName,
-                                latitude: currentPosition.latitude,
-                                longitude: currentPosition.longitude,
-                                timestamp: DateTime.now(),
-                              );
-                              Navigator.of(context).pop(plateEntry);
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Location not captured. Plate not added.')),
-                              );
-                              setState(() {
-                                _isLoading = false;
-                              });
-                              Navigator.of(context).pop(null);
-                            }
-                          }
-                        },
+                                  if (currentPosition != null) {
+                                    final plateEntry = PlateEntry(
+                                      plateName: stateName,
+                                      latitude: currentPosition.latitude,
+                                      longitude: currentPosition.longitude,
+                                      timestamp: DateTime.now(),
+                                    );
+                                    Navigator.of(context).pop(plateEntry);
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Location not captured. Plate not added.')),
+                                    );
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    // Pop null if location isn't captured to signal no plate was added successfully
+                                    Navigator.of(context).pop(null);
+                                  }
+                                }
+                              },
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.5),
